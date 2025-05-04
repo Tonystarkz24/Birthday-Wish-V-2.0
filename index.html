@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Happy Birthday!</title>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+      font-family: 'Arial', sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .page-wrapper {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .section {
+      background: rgba(255, 255, 255, 0.8);
+      padding: 30px;
+      border-radius: 20px;
+      margin-bottom: 30px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      color: #ff1493;
+      font-size: 2.5em;
+      margin-bottom: 20px;
+    }
+
+    p {
+      color: #333;
+      font-size: 1.2em;
+      margin: 10px 0;
+    }
+
+    .interactive-button {
+      background: linear-gradient(45deg, #ff69b4, #ff1493);
+      color: white;
+      padding: 15px 30px;
+      border: none;
+      border-radius: 30px;
+      font-size: 1.2em;
+      cursor: pointer;
+      margin: 20px;
+      transition: transform 0.3s;
+    }
+
+    .interactive-button:hover {
+      transform: scale(1.05);
+    }
+
+    .cake-container {
+      width: 300px;
+      height: 300px;
+      margin: 20px auto;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .cake {
+      width: 100%;
+      height: 100%;
+      background-image: url('https://cdn.pixabay.com/photo/2017/08/27/22/01/birthday-cake-2685752_1280.png');
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-position: center;
+      position: relative;
+      transition: transform 0.3s;
+      filter: drop-shadow(0 0 15px rgba(255, 20, 147, 0.7));
+    }
+
+    .cake:hover {
+      transform: scale(1.05);
+      filter: drop-shadow(0 0 20px rgba(255, 20, 147, 0.9));
+    }
+
+    .candle {
+      position: absolute;
+      width: 12px;
+      height: 45px;
+      background: linear-gradient(to bottom, #ffd700, #ffa500);
+      top: 25px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-radius: 5px;
+      box-shadow: 0 0 15px rgba(255, 215, 0, 0.7);
+    }
+
+    .flame {
+      position: absolute;
+      width: 10px;
+      height: 20px;
+      background: linear-gradient(to bottom, #ff4500, #ffd700);
+      top: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-radius: 50% 50% 20% 20%;
+      animation: flicker 0.5s infinite alternate;
+      box-shadow: 0 0 20px rgba(255, 69, 0, 0.9);
+    }
+
+    .gift-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 20px;
+      perspective: 1000px;
+    }
+
+    .gift-box {
+      width: 150px;
+      height: 150px;
+      background: linear-gradient(45deg, #ff69b4, #ff1493);
+      border-radius: 10px;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.5s;
+      transform-style: preserve-3d;
+    }
+
+    .gift-box:hover {
+      transform: translateY(-10px) rotateX(10deg);
+      box-shadow: 0 15px 30px rgba(255, 20, 147, 0.3);
+    }
+
+    .gift-box.open {
+      transform: rotateX(180deg);
+    }
+
+    .gift-lid {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 30px;
+      background: linear-gradient(45deg, #ff1493, #ff69b4);
+      border-radius: 10px 10px 0 0;
+      transform-origin: top;
+      transition: transform 0.5s;
+    }
+
+    .gift-box.open .gift-lid {
+      transform: rotateX(180deg);
+    }
+
+    .gift-ribbon {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: transparent;
+    }
+
+    .gift-ribbon::before,
+    .gift-ribbon::after {
+      content: '';
+      position: absolute;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 5px;
+    }
+
+    .gift-ribbon::before {
+      width: 20px;
+      height: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .gift-ribbon::after {
+      width: 100%;
+      height: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    .gift-bow {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 2;
+    }
+
+    .gift-bow::before,
+    .gift-bow::after {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 50%;
+    }
+
+    .gift-bow::before {
+      top: 0;
+      left: 0;
+    }
+
+    .gift-bow::after {
+      bottom: 0;
+      right: 0;
+    }
+
+    .gift-content {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2em;
+      color: white;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+      transform: translateZ(20px);
+    }
+
+    .gift-sparkles {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 3;
+    }
+
+    .sparkle {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: white;
+      border-radius: 50%;
+      animation: sparkle 1s ease-out infinite;
+    }
+
+    @keyframes sparkle {
+      0% {
+        transform: scale(1);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(2);
+        opacity: 0;
+      }
+    }
+
+    .gift-message {
+      position: absolute;
+      bottom: -30px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      color: #ff1493;
+      font-size: 0.9em;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .gift-box:hover .gift-message {
+      opacity: 1;
+    }
+
+    .heart, .balloon {
+      position: fixed;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    @keyframes flicker {
+      0% { 
+        transform: translateX(-50%) scale(1) rotate(-5deg);
+        opacity: 1;
+      }
+      50% {
+        transform: translateX(-50%) scale(1.1) rotate(5deg);
+        opacity: 0.9;
+      }
+      100% { 
+        transform: translateX(-50%) scale(1.2) rotate(-5deg);
+        opacity: 0.8;
+      }
+    }
+
+    /* Fireworks Animation */
+    .firework {
+      position: fixed;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      box-shadow: 0 0 10px 5px rgba(255, 255, 255, 0.8);
+      animation: explode 1s ease-out forwards;
+      z-index: 1000;
+    }
+
+    @keyframes explode {
+      0% {
+        transform: scale(1);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(20);
+        opacity: 0;
+      }
+    }
+
+    /* Enhanced Birthday Card Styles */
+    .card-container {
+      perspective: 1000px;
+      margin: 30px auto;
+      width: 300px;
+      height: 400px;
+      position: relative;
+    }
+
+    .birthday-card {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 1s;
+      cursor: pointer;
+      background: white;
+    }
+
+    .birthday-card.open {
+      transform: rotateY(180deg);
+    }
+
+    .card-front,
+    .card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 15px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      text-align: center;
+      overflow: hidden;
+      background: white;
+    }
+
+    .card-front {
+      background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+      transform: rotateY(0deg);
+      z-index: 2;
+    }
+
+    .card-front::before {
+      display: none;
+    }
+
+    .card-front h3 {
+      color: white;
+      font-size: 1.8em;
+      margin-bottom: 20px;
+      text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.6);
+      position: relative;
+      z-index: 1;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+
+    .card-front p {
+      color: white;
+      font-size: 1.4em;
+      text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.6);
+      position: relative;
+      z-index: 1;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+
+    .card-back {
+      background: white;
+      transform: rotateY(180deg);
+      z-index: 1;
+    }
+
+    .card-back::before {
+      display: none;
+    }
+
+    .card-back p {
+      color: #111;
+      font-size: 1.2em;
+      line-height: 1.6;
+      margin: 12px 0;
+      position: relative;
+      z-index: 1;
+      font-weight: 600;
+      padding: 0 20px;
+      text-shadow: none;
+    }
+
+    .card-back .signature {
+      margin-top: 20px;
+      font-style: italic;
+      color: #ff1493;
+      position: relative;
+      z-index: 1;
+      font-weight: bold;
+      font-size: 1.3em;
+      text-shadow: none;
+    }
+
+    /* Remove the ribbon styles */
+    .card-ribbon,
+    .card-ribbon::before,
+    .card-ribbon::after,
+    .card-ribbon span {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="page-wrapper">
+    <div class="section">
+      <h1>Happy Birthday, Shaijana! 🎉</h1>
+      <p>Wishing you a fantastic day filled with joy and happiness! 🎂</p>
+      
+      <button class="interactive-button" onclick="createConfetti()">🎉 Click for Celebration! 🎉</button>
+      <button class="interactive-button" onclick="showSpecialMessage()">💝 Special Message 💝</button>
+      
+      <div id="countdown" style="font-size: 1.5em; color: #ff1493; margin: 20px 0;"></div>
+      
+      <div id="specialMessage" style="display: none;">
+        <h2>To My Amazing Friend Shaijana,</h2>
+        <p>On your special day, I want to remind you how wonderful you are! Your kindness, strength, and beautiful spirit make the world a better place. May this year bring you endless joy, success, and all the happiness you deserve! 🎈🎁🎂</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="cake-container" onclick="blowCandle()">
+        <div class="cake">
+          <div class="candle">
+            <div class="flame" id="flame"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="gift-container">
+        <div class="gift-box" onclick="openGift(this, '🎁 Surprise 1: A virtual hug! 🤗')">
+          <div class="gift-sparkles"></div>
+          <div class="gift-lid"></div>
+          <div class="gift-ribbon"></div>
+          <div class="gift-bow"></div>
+          <div class="gift-content">🎁</div>
+          <div class="gift-message">Click to open!</div>
+        </div>
+        <div class="gift-box" onclick="openGift(this, '🎁 Surprise 2: Best wishes for an amazing year ahead! ✨')">
+          <div class="gift-sparkles"></div>
+          <div class="gift-lid"></div>
+          <div class="gift-ribbon"></div>
+          <div class="gift-bow"></div>
+          <div class="gift-content">🎁</div>
+          <div class="gift-message">Click to open!</div>
+        </div>
+        <div class="gift-box" onclick="openGift(this, '🎁 Surprise 3: May all your dreams come true! 🌟')">
+          <div class="gift-sparkles"></div>
+          <div class="gift-lid"></div>
+          <div class="gift-ribbon"></div>
+          <div class="gift-bow"></div>
+          <div class="gift-content">🎁</div>
+          <div class="gift-message">Click to open!</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="card-container">
+        <div class="birthday-card" onclick="toggleCard(this)">
+          <div class="card-front">
+            <h3>Click to Open! 🎁</h3>
+            <p>For Shaijana</p>
+          </div>
+          <div class="card-back">
+            <p style="margin-top: 15px;">Dear Shaijana,</p>
+            <p style="margin: 15px 0;">Wishing you a birthday filled with joy, laughter, and all the happiness in the world! May this year bring you endless blessings and beautiful moments.</p>
+            <p style="margin: 15px 0;">You're an amazing friend, and I'm so grateful to have you in my life!</p>
+            <p class="signature" style="margin-top: 20px;">With love,<br>Your Friend</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Countdown timer
+    function updateCountdown() {
+      const now = new Date();
+      const birthday = new Date(2025, 4, 19);
+      const diff = birthday - now;
+      
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+      
+      let countdownText = '';
+      if (days > 0) {
+        countdownText = `🎂 ${days} days, ${hours}h ${minutes}m ${seconds}s until Shaijana's special day! 🎂`;
+      } else if (hours > 0) {
+        countdownText = `🎂 ${hours}h ${minutes}m ${seconds}s until Shaijana's special day! 🎂`;
+      } else {
+        countdownText = `🎂 ${minutes}m ${seconds}s until Shaijana's special day! 🎂`;
+      }
+      
+      document.getElementById('countdown').innerHTML = countdownText;
+    }
+
+    setInterval(updateCountdown, 1000);
+    updateCountdown();
+
+    // Confetti explosion
+    function createConfetti() {
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
+    }
+
+    // Special message reveal
+    function showSpecialMessage() {
+      const messageBox = document.getElementById('specialMessage');
+      messageBox.style.display = 'block';
+      createConfetti();
+    }
+
+    // Interactive Cake Functionality
+    function blowCandle() {
+      const flame = document.getElementById('flame');
+      flame.style.display = 'none';
+      createConfetti();
+      setTimeout(() => {
+        flame.style.display = 'block';
+      }, 3000);
+    }
+
+    // Enhanced Gift Box Functionality
+    function createSparkles(element) {
+      const sparkles = element.querySelector('.gift-sparkles');
+      sparkles.innerHTML = '';
+      
+      for (let i = 0; i < 20; i++) {
+        const sparkle = document.createElement('div');
+        sparkle.className = 'sparkle';
+        sparkle.style.left = Math.random() * 100 + '%';
+        sparkle.style.top = Math.random() * 100 + '%';
+        sparkle.style.animationDelay = Math.random() * 1 + 's';
+        sparkles.appendChild(sparkle);
+      }
+    }
+
+    function openGift(giftBox, message) {
+      giftBox.classList.add('open');
+      createSparkles(giftBox);
+      createConfetti();
+      
+      setTimeout(() => {
+        alert(message);
+        giftBox.classList.remove('open');
+      }, 1000);
+    }
+
+    // Initialize sparkles for all gift boxes
+    document.querySelectorAll('.gift-box').forEach(box => {
+      createSparkles(box);
+      
+      // Add hover effect for sparkles
+      box.addEventListener('mouseenter', () => {
+        createSparkles(box);
+      });
+    });
+
+    // Add click event for confetti
+    document.addEventListener('click', function(e) {
+      if (e.target.classList.contains('interactive-button')) return;
+      createConfetti();
+    });
+
+    // Fireworks Animation
+    function createFirework(x, y, color) {
+      const firework = document.createElement('div');
+      firework.className = 'firework';
+      firework.style.left = x + 'px';
+      firework.style.top = y + 'px';
+      firework.style.backgroundColor = color;
+      document.body.appendChild(firework);
+
+      setTimeout(() => {
+        firework.remove();
+      }, 1000);
+    }
+
+    function createFireworks() {
+      const colors = ['#ff1493', '#ff69b4', '#ffb6c1', '#ffc0cb', '#ff69b4'];
+      for (let i = 0; i < 50; i++) {
+        setTimeout(() => {
+          const x = Math.random() * window.innerWidth;
+          const y = Math.random() * window.innerHeight;
+          const color = colors[Math.floor(Math.random() * colors.length)];
+          createFirework(x, y, color);
+        }, i * 100);
+      }
+    }
+
+    // Birthday Card Animation
+    function toggleCard(card) {
+      card.classList.toggle('open');
+      if (card.classList.contains('open')) {
+        createConfetti();
+      }
+    }
+
+    // Initialize fireworks on page load
+    window.addEventListener('load', () => {
+      createFireworks();
+      // Play background music
+      document.getElementById('bgMusic').play().catch(e => console.log('Autoplay prevented:', e));
+    });
+  </script>
+
+  <audio id="bgMusic" loop>
+    <source src="music/Irupathu-Kodi-Nillavukal.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
+  </audio>
+</body>
+</html>
+
